@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+   <meta charset="UTF-8" />
+   <title>🗡 Policejní výslech – tvrdý režim</title>
+   <link rel="stylesheet" type="text/css" href="style-hra.css">
+</head>
+<body>
+   <div id="container">
+     <h2>🚨 Výslech – tvrdý režim</h2>
+     <div id="text"></div>
+     <div id="options"></div>
+   </div>
+
+   <img id="vezeni" src="vezeni.jpg" style="display:none; width:100%; margin-top:20px;">
+
+   <script>
+     const dialogy = {
+       start: {
+         text: "Vyšetřovatel: Oběť byla nalezena v hotelovém pokoji. Máme motiv i tvoji stopu na klice. Kde jsi byl v době smrti?",
+         options: {
+           A: { text: "V hotelovém baru.", next: "bar" },
+           B: { text: "Nevím přesný čas, byl jsem na cestě.", next: "cesta" },
+           C: { text: "Neudělám výpověď bez právníka.", next: "pravo" }
+         }
+       },
+
+       bar: {
+         text: "Vyšetřovatel: Barman tvrdí, že jsi odešel o půlnoci – vražda byla asi 00:10. Kam jsi šel?",
+         options: {
+           A: { text: "Do pokoje. Mám záznam z karty.", next: "zaznam" },
+           B: { text: "Na balkon zavolat.", next: "balkon" }
+         }
+       },
+
+       zaznam: {
+         text: "Vyšetřovatel: Záznam karty se neshoduje. Byla použita až 00:25.",
+         options: {
+           A: { text: "Někdo mi kartu ukradl.", next: "ukradena" },
+           B: { text: "Někdo mě viděl, jak vstupuji.", next: "svedek" }
+         }
+       },
+
+       balkon: {
+         text: "Vyšetřovatel: Sousedi tvrdí, že slyšeli hádku na balkoně.",
+         options: {
+           A: { text: "Hádka patřila vedlejšímu pokoji!", next: "vedle" },
+           B: { text: "Dobře… pohádali jsme se, ale odešel jsem.", next: "hadka" }
+         }
+       },
+
+       cesta: {
+         text: "Vyšetřovatel: Kamera tě skutečně zachytila, ale jen do 23:50. Dál nevíme kde jsi byl.",
+         options: {
+           A: { text: "Ztratil jsem signál telefonu – mohu ukázat historii GPS.", next: "gps" },
+           B: { text: "Moje SIM karta byla vypnutá.", next: "vypnuta" }
+         }
+       },
+
+       gps: {
+         text: "Vyšetřovatel: GPS ukazuje, že jsi šel směrem k hotelu oběti.",
+         options: {
+           A: { text: "Ano – šel jsem si pro něco, co mi dlužil.", next: "motiv" },
+           B: { text: "Šel jsem kolem, nebyl jsem u něj.", next: "navrat" }
+         }
+       },
+
+       vypnuta: {
+         text: "Vyšetřovatel: Kdo normálně vypíná SIM v den vraždy? To nezní dobře.",
+         options: {
+           A: { text: "To byla shoda okolností!", next: "nezverejneno" },
+           B: { text: "Nechtěl jsem, aby mě někdo sledoval.", next: "podezreni" }
+         }
+       },
+
+       pravo: {
+         text: "Vyšetřovatel: Bez spolupráce případ neuzavřeme. Ale máš právo mlčet.",
+         options: {
+           A: { text: "Zkusit znovu.", next: "start" }
+         }
+       },
+
+       ukladana: {
+         text: "Vyšetřovatel: Pokud je pravda, že ti někdo kartu vzal, musíme někoho najít.",
+         options: {
+           A: { text: "Navrhnout další podezřelou osobu.", next: "podezreli" },
+           B: { text: "Trvat na nevinně bez dalších detailů.", next: "slabe" }
+         }
+       },
+
+       svedek: {
+         text: "Vyšetřovatel: Nikdo se zatím nepřihlásil jako svědek.",
+         options: {
+           A: { text: "Musí být někdo, kdo mě viděl!", next: "slabe" },
+           B: { text: "Dobře – řeknu pravdu, kdo mě tam mohl vidět.", next: "podezreli" }
+         }
+       },
+
+       vedle: {
+         text: "Vyšetřovatel: Opravdu? Protože vedlejší pokoj byl prázdný.",
+         options: {
+           A: { text: "Pak jste udělali chybu!", next: "slabe" },
+           B: { text: "Dobře – byl jsem to já, ale neublížil jsem mu!", next: "motiv" }
+         }
+       },
+
+       hadka: {
+         text: "Vyšetřovatel: Máme zvukový záznam – padla vyhrůžka.",
+         options: {
+           A: { text: "Byl jsem rozčílený – ale ne vrah.", next: "motiv" },
+           B: { text: "Nechci o tom mluvit.", next: "podezreni" }
+         }
+       },
+
+       motiv: {
+         text: "Vyšetřovatel: Takže tu byl motiv. Dluh, vyhrůžka, konflikt…",
+         options: {
+           A: { text: "Ano, ale odešel jsem dřív a mám důkaz.", next: "dukaz" },
+           B: { text: "Motiv má i někdo jiný – a ukážu kdo.", next: "podezreli" }
+         }
+       },
+
+       dukaz: {
+         text: "Vyšetřovatel: Ukaž důkaz.",
+         options: {
+           A: { text: "Bezpečnostní kameru z chodby.", next: "osvobozen" },
+           B: { text: "Účtenku z baru.", next: "slabe" }
+         }
+       },
+
+       podezreli: {
+         text: "Vyšetřovatel: Dobře – kdo podle tebe měl důvod oběť zabít?",
+         options: {
+           A: { text: "Jeho obchodní partner – hrozil mu krachem.", next: "stopa" },
+           B: { text: "Jeho přítelkyně – hádali se kvůli penězům.", next: "stopa" },
+           C: { text: "Nevím – hádal se s někým po telefonu.", next: "stopa" }
+         }
+       },
+
+       stopa: {
+         text: "Vyšetřovatel: Prověřili jsme to. Někdo jiný má větší motiv i časový prostor. Jsi očištěn.",
+         options: {
+           A: { text: "Hrát znovu", next: "start" }
+         }
+       },
+
+       dukaz_slaby: {
+         text: "Vyšetřovatel: Tohle neprokáže nevinu. Případ zůstává proti tobě.",
+         options: {
+           A: { text: "Zkusit znovu", next: "start" }
+         }
+       },
+
+       podezreni: {
+         text: "Vyšetřovatel: Divné kroky, nejasné odpovědi – to nevypadá dobře.",
+         options: {
+           A: { text: "Zkusit znovu", next: "start" }
+         }
+       },
+
+       nezverejneno: {
+         text: "Vyšetřovatel: Bez dat nemáš šanci dokázat, že jsi nevinný.",
+         options: {
+           A: { text: "Zkusit znovu", next: "start" }
+         }
+       },
+
+       navrat: {
+         text: "Vyšetřovatel: Není důkaz, že jsi nebyl u oběti. Zůstáváš hlavní podezřelý.",
+         options: {
+           A: { text: "Zkusit znovu", next: "start" }
+         }
+       },
+
+       slabe: {
+         text: "Vyšetřovatel: Tvoje obhajoba je slabá. Případ se obrací proti tobě.",
+         options: {
+           A: { text: "Zkusit znovu", next: "start" }
+         }
+       },
+
+       osvobozen: {
+         text: "Vyšetřovatel: Kamery potvrzují tvůj odchod před smrtí. Jsi volný.",
+         options: {
+           A: { text: "Hrát znovu", next: "start" }
+         }
+       }
+     };
+
+     function zobrazDialog(krokId) {
+       const dialog = dialogy[krokId];
+       const textBox = document.getElementById("text");
+       const optionsBox = document.getElementById("options");
+       const vezeniImg = document.getElementById("vezeni");
+
+       textBox.textContent = dialog.text;
+       optionsBox.innerHTML = "";
+       vezeniImg.style.display = "none";
+
+       const prohra = ["slabe", "navrat", "podezreni", "nezverejneno", "dukaz_slaby"];
+
+       if (prohra.includes(krokId)) {
+         vezeniImg.style.display = "block";
+       }
+
+       for (const key in dialog.options) {
+         const btn = document.createElement("button");
+         btn.textContent = dialog.options[key].text;
+         btn.onclick = () => zobrazDialog(dialog.options[key].next);
+         optionsBox.appendChild(btn);
+       }
+     }
+
+     zobrazDialog("start");
+   </script>
+</body>
+</html>
